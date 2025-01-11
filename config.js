@@ -13,6 +13,12 @@ const config_schema = v.object({
 			return input.split(",").map((val) => val.trim());
 		}),
 	),
+	BEARER_TOKEN: v.pipe(
+		v.string(),
+		v.nonEmpty("BEARER_TOKEN must not be empty"),
+	),
+	BASE_ID: v.pipe(v.string(), v.nonEmpty("BASE_ID must not be empty")),
+	TABLE_ID: v.pipe(v.string(), v.nonEmpty("TABLE_ID must not be empty")),
 });
 
 function validate() {
