@@ -15,7 +15,8 @@
 		"@hono/node-server": "^1.13.7",
 		"discord.js": "^14.17.3",
 		"dotenv": "^16.4.7",
-		"hono": "^4.6.16"
+		"hono": "^4.6.16",
+		"valibot": "^1.0.0-beta.11"
 	},
 	"devDependencies": {
 		"@types/node": "^22.10.5"

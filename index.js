@@ -1,7 +1,5 @@
-import "dotenv/config";
 import { Client, Events, GatewayIntentBits } from "discord.js";
-
-const reply_to_channels = ["payments"];
+import { config } from "./config.js";
 
 const client = new Client({
 	intents: [
@@ -25,7 +23,7 @@ client.on(Events.MessageCreate, async (message) => {
 
 	// TODO: decide to reply only to specific bot username.
 	// Only reply to the payments channel if found.
-	if (reply_to_channels.includes(message.channel.name)) {
+	if (config.CHANNELS.includes(message.channel.name)) {
 		await message.reply(`New Payment Receipt from Bot (faze)...
 Name: Jack Daniels
 Contact: +23299783218
@@ -38,4 +36,4 @@ Sender Receipt: https://www.url_link.com`);
 	}
 });
 
-client.login(process.env.BOT_TOKEN);
+client.login(config.BOT_TOKEN);
