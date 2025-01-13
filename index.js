@@ -1,4 +1,5 @@
 import { Client, Events, GatewayIntentBits } from "discord.js";
+import fetch from "node-fetch";
 import { config } from "./config.js";
 
 const client = new Client({
@@ -15,7 +16,10 @@ client.once(Events.ClientReady, (c) => {
 
 client.on(Events.MessageCreate, async (message) => {
 	// don't reply if the message was sent by the bot.
-	if (message.author.bot === true) {
+	if (
+		message.author.bot === true ||
+		config.CHANNELS.includes(message.channel.name) === false
+	) {
 		// FIX: delete the line below
 		setTimeout(() => message.delete(), 5000);
 		return;
@@ -23,38 +27,35 @@ client.on(Events.MessageCreate, async (message) => {
 
 	// TODO: decide to reply only to specific bot username.
 	// Only reply to the payments channel if found.
-	if (config.CHANNELS.includes(message.channel.name)) {
-		await message.reply(`New Payment Receipt from Bot (faze)...
+	await message.reply(`New Payment Receipt from Bot (faze)...
 Name: Jack Daniels
 Contact: +23299783218
 Receipt Number: Check payment receipt
 Amount Remitted: $50
 Sender Receipt: https://www.url_link.com`);
 
-		const fields = clean_message(message.content);
+	const fields = clean_message(message.content);
 
-		try {
-			const res = await fetch(
-				`https://api.airtable.com/v0/${config.BASE_ID}/${config.TABLE_ID}`,
-				{
-					method: "POST",
-					headers: {
-						Authorization: `Bearer ${config.BEARER_TOKEN}`,
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ fields }),
+	try {
+		const res = await fetch(
+			`https://api.airtable.com/v0/${config.BASE_ID}/${config.TABLE_ID}`,
+			{
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${config.BEARER_TOKEN}`,
+					"Content-Type": "application/json",
 				},
-			);
-			const data = await res.json();
-			console.log(data);
-		} catch (_e) {
-			console.log(_e.message);
-			console.log(_e.cause);
-		}
-
-		// FIX: delete the line below
-		setTimeout(() => message.delete(), 2000);
+				body: JSON.stringify({ fields }),
+			},
+		);
+		const data = await res.json();
+		console.log(data);
+	} catch (_e) {
+		console.log(_e);
 	}
+
+	// FIX: delete the line below
+	setTimeout(() => message.delete(), 2000);
 });
 
 /**
