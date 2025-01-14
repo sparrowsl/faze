@@ -10,12 +10,11 @@ const client = new Client({
 	],
 });
 
-client.once(Events.ClientReady, (c) => {
-	console.log(`Ready, logged in as: ${c.user.tag}`);
-});
+client.once(Events.ClientReady, (c) => console.log(`${c.user.tag}: Ready`));
 
 client.on(Events.MessageCreate, async (message) => {
-	// don't reply if the message was sent by the bot.
+	// don't reply if the message was sent by the bot,
+	// or if the channels to reply in is not in the list
 	if (
 		message.author.bot === true ||
 		config.CHANNELS.includes(message.channel.name) === false
@@ -27,12 +26,7 @@ client.on(Events.MessageCreate, async (message) => {
 
 	// TODO: decide to reply only to specific bot username.
 	// Only reply to the payments channel if found.
-	await message.reply(`New Payment Receipt from Bot (faze)...
-Name: Jack Daniels
-Contact: +23299783218
-Receipt Number: Check payment receipt
-Amount Remitted: $50
-Sender Receipt: https://www.url_link.com`);
+	await message.reply("Message sent successfully!!");
 
 	const fields = clean_message(message.content);
 
@@ -60,18 +54,24 @@ Sender Receipt: https://www.url_link.com`);
 
 /**
  * @param {string} message
- * @returns {{Name: string, Contact: string, "Receipt Number": string, "AMount Remitted": string, "Sender Receipt": string }}
+ * @returns {{
+ *	"Customer Name": string,
+ *	"Customer Contact": string,
+ *	"Type": string,
+ *	"Amount Remitted": string,
+ *	"Date": string
+ * }}
  */
 function clean_message(message) {
 	const string_lines = message.split("\n").slice(1);
 
 	/** @type {{Name: string, Contact: string, "Receipt Number": string, "AMount Remitted": string, "Sender Receipt": string }} */
 	const cleaned_data = {
-		Name: "",
-		Contact: "",
-		"Receipt Number": "",
+		"Customer Name": "",
+		"Customer Phone": "",
+		Type: "Remittance In",
 		"Amount Remitted": "",
-		"Sender Receipt": "",
+		Date: new Date().toUTCString(),
 	};
 
 	for (const line of string_lines) {
@@ -79,7 +79,9 @@ function clean_message(message) {
 		const key = line.slice(0, colon_idx);
 		const value = line.slice(colon_idx + 1).trim();
 
-		cleaned_data[key] = value;
+		if (key in cleaned_data) {
+			cleaned_data[key] = value;
+		}
 	}
 
 	return cleaned_data;
